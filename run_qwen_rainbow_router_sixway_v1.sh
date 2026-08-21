@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# 与旧版本相同：默认复用原输出目录中的 manifest / Fresh Blueprint / Full Reference / Fixed25 cache。
-# 只会失效旧 RL policy / Router state。
+# v10 默认继续复用原 OUTPUT_DIR 中的：
+# - manifest
+# - Fresh Blueprint calibration / schedule
+# - Full Reference 静态 teacher cache
+# 旧 v9 RL policy/state 因算法 fingerprint 变化会自动失效；旧 fixed25 cache 不删除，但 v10 不再依赖。
+
 PYTHON_BIN="${PYTHON_BIN:-python}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MODE="${MODE:-all}"
@@ -11,13 +15,13 @@ NPROC_PER_NODE="${NPROC_PER_NODE:-${NPROC:-2}}"
 MODEL_PATH="${MODEL_PATH:-/data4/guowenwu/MMDITModelCompression/models/Qwen-Image-Edit-2511}"
 DATASET_ROOT="${DATASET_ROOT:-/data4/guowenwu/MMDITModelCompression/dataset/images1024x1024}"
 PROMPT_FILE="${PROMPT_FILE:-/data4/guowenwu/MMDITModelCompression/portrait_prompts.md}"
-OUTPUT_DIR="${OUTPUT_DIR:-/data4/guowenwu/RLCompression/outputs/qwen_rainbow_router_sixway_v1}"
+OUTPUT_DIR="${OUTPUT_DIR:-/data4/guowenwu/RLCompression}"
 BLUEPRINT_CALIBRATION_COUNT="${BLUEPRINT_CALIBRATION_COUNT:-100}"
 TRAIN_COUNT="${TRAIN_COUNT:-100}"
 EVAL_COUNT="${EVAL_COUNT:-10}"
 COMPUTE_RATIO="${COMPUTE_RATIO:-0.25}"
 
-# Router 参数。日志默认只打印 epoch loss / deterministic validation convergence。
+# Rainbow Router 参数。
 export ROUTER_VAL_COUNT="${ROUTER_VAL_COUNT:-8}"
 export ROUTER_REPLAY_CAPACITY="${ROUTER_REPLAY_CAPACITY:-50000}"
 export ROUTER_BATCH_SIZE="${ROUTER_BATCH_SIZE:-256}"
@@ -30,6 +34,8 @@ export ROUTER_EPS_DECAY="${ROUTER_EPS_DECAY:-0.85}"
 export ROUTER_MIN_EPOCHS="${ROUTER_MIN_EPOCHS:-3}"
 export ROUTER_PATIENCE="${ROUTER_PATIENCE:-3}"
 export ROUTER_MAX_EPOCHS="${ROUTER_MAX_EPOCHS:-20}"
+export ROUTER_STATIC_LAPLACE="${ROUTER_STATIC_LAPLACE:-0.5}"
+export ROUTER_WRITE_PLOTS="${ROUTER_WRITE_PLOTS:-1}"
 export ROUTER_QUIET_INNER="${ROUTER_QUIET_INNER:-1}"
 
 CMD=(

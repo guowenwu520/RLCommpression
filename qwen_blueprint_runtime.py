@@ -741,14 +741,14 @@ class ResidualProfileController:
             raise RuntimeError("残差统计Transformer forward次数超过预期。")
         step_index = self.call_index // self.forwards_per_step
         branch_index = self.call_index % self.forwards_per_step
-        # print(
-        #     f"[profile][{getattr(self.args, 'device', 'cuda')}]"
-        #     f"[sample {int(getattr(self.args, 'sample_index', 0)):05d}] "
-        #     f"step={step_index + 1}/{self.args.num_inference_steps}，"
-        #     f"branch={branch_index + 1}/{self.forwards_per_step}："
-        #     "完整计算并统计逐层残差变化",
-        #     flush=True,
-        # )
+        print(
+            f"[profile][{getattr(self.args, 'device', 'cuda')}]"
+            f"[sample {int(getattr(self.args, 'sample_index', 0)):05d}] "
+            f"step={step_index + 1}/{self.args.num_inference_steps}，"
+            f"branch={branch_index + 1}/{self.forwards_per_step}："
+            "完整计算并统计逐层残差变化",
+            flush=True,
+        )
         executed = set(range(self.total_layers))
         with install_block_policy(
             transformer_blocks=self.blocks,
@@ -1900,16 +1900,16 @@ class BlueLineTokenScheduledController:
             for metadata in token_metadata.values()
         )
         cached_image_tokens = total_image_tokens - computed_image_tokens
-        # print(
-        #     f"[block+token][{getattr(self.args, 'device', 'cuda')}]"
-        #     f"[sample {int(getattr(self.args, 'sample_index', 0)):05d}] "
-        #     f"step={step_index + 1}/{self.args.num_inference_steps}，"
-        #     f"branch={branch_index + 1}/{self.forwards_per_step}："
-        #     f"执行Block={len(executed)}，跳过Block={len(skipped)}；"
-        #     f"image token代理计算={computed_image_tokens}/{total_image_tokens}，"
-        #     f"缓存={cached_image_tokens}",
-        #     flush=True,
-        # )
+        print(
+            f"[block+token][{getattr(self.args, 'device', 'cuda')}]"
+            f"[sample {int(getattr(self.args, 'sample_index', 0)):05d}] "
+            f"step={step_index + 1}/{self.args.num_inference_steps}，"
+            f"branch={branch_index + 1}/{self.forwards_per_step}："
+            f"执行Block={len(executed)}，跳过Block={len(skipped)}；"
+            f"image token代理计算={computed_image_tokens}/{total_image_tokens}，"
+            f"缓存={cached_image_tokens}",
+            flush=True,
+        )
         self.branch_step_rows.append(
             {
                 "step_index_0based": step_index,
